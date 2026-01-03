@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEQY - Open Source Community</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #22d3ee;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(99, 102, 241, 0.15);
+        }
+
+        [data-theme="light"] {
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --accent: #6366f1;
+            --border: rgba(0, 0, 0, 0.08);
+            --shadow: rgba(99, 102, 241, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(34, 211, 238, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+
+        [data-theme="light"] .gradient-bg {
+            background:
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        [data-theme="light"] nav {
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .icon-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            padding: 0;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text);
+            transition: fill 0.3s;
+        }
+
+        .lang-btn {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.35rem);
+            color: var(--text-muted);
+            max-width: 640px;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stats {
+            display: flex;
+            gap: clamp(2rem, 5vw, 4rem);
+            margin-top: 5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .features {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px var(--shadow);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .projects {
+            padding: 6rem 2rem;
+            background: var(--card-bg);
+        }
+
+        .projects-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-card {
+            background: var(--bg);
+            border-radius: 1rem;
+            padding: 1.75rem 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+
+        .project-card:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .project-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .project-info p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .project-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .project-stars {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #fbbf24;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .project-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .project-link:hover {
+            opacity: 1;
+        }
+
+        .community {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .community-content {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(34, 211, 238, 0.1));
+            border-radius: 1.5rem;
+            padding: clamp(2rem, 5vw, 4rem);
+            text-align: center;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        [data-theme="light"] .community-content {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.05));
+        }
+
+        .community-content h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-bottom: 1rem;
+        }
+
+        .community-content p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        footer {
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            transition: border-color 0.3s;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-brand {
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-desc {
+            font-size: 0.95rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 2rem 0;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links a {
+            font-size: 0.95rem;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .copyright .heart {
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--card-bg);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1.5rem;
+                border-bottom: 1px solid var(--border);
+                transform: translateY(-100%);
+                opacity: 0;
+                pointer-events: none;
+                transition: all 0.3s;
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .nav-actions {
+                gap: 0.5rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .mobile-menu-btn.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+
+            .mobile-menu-btn.active span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .mobile-menu-btn.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
+            }
+
+            .project-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .project-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .footer-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+
+    <nav>
+        <div class="logo">CEQY</div>
+        <div class="nav-content">
+            <ul class="nav-links">
+                <li><a href="#features" data-i18n="nav_features">特性</a></li>
+                <li><a href="#projects" data-i18n="nav_projects">项目</a></li>
+                <li><a href="#community" data-i18n="nav_community">社区</a></li>
+                <li><a href="#docs" data-i18n="nav_docs">文档</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="lang-btn" id="langToggle">EN</button>
+                <button class="icon-btn" id="themeToggle" title="Switch Theme">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0-7c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1s1-.45 1-1V3c0-.55-.45-1-1-1zm0 16c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1v-1c0-.55-.45-1-1-1zm-4.95-4.95l1.41 1.41c.39.39.39 1.02 0 1.41s-1.02.39-1.41 0L7.76 16.1c-.39-.39-.39-1.02 0-1.41s1.02-.39 1.41 0l1.88 1.88zM12 7c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm8 0c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm-8 8c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm4.95 4.95l-1.41-1.41c-.39-.39-.39-1.02 0-1.41s1.02-.39 1.41 0l1.41 1.41c.39.39.39 1.02 0 1.41s-1.02.39-1.41 0zM7.76 7.9l-1.41 1.41c-.39.39-.39 1.02 0 1.41s1.02.39 1.41 0l1.41-1.41c-.39-.39-.39-1.02 0-1.41s-1.02-.39-1.41 0z"/>
+                    </svg>
+                </button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1><span data-i18n="hero_title">欢迎来到</span> <span>CEQY</span> <span data-i18n="hero_subtitle">开源社区</span></h1>
+        <p data-i18n="hero_desc">一个充满活力的开放源代码社区，我们致力于构建优雅、高效、创新的技术解决方案，让每一位开发者都能在这里找到归属感和成长的机会。</p>
+        <div class="cta-group">
+            <a href="#projects" class="btn btn-primary" data-i18n="cta_browse">浏览项目</a>
+            <a href="#community" class="btn btn-outline" data-i18n="cta_join">加入社区</a>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">50+</div>
+                <div class="stat-label" data-i18n="stat_projects">开源项目</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">2K+</div>
+                <div class="stat-label" data-i18n="stat_members">社区成员</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100+</div>
+                <div class="stat-label" data-i18n="stat_contributors">活跃贡献者</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2 class="section-title" data-i18n="features_title">为什么选择 CEQY？</h2>
+            <p class="section-subtitle" data-i18n="features_subtitle">我们提供最佳的开源协作体验</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">&#9733;</div>
+                <h3 data-i18n="feature1_title">开放协作</h3>
+                <p data-i18n="feature1_desc">透明化的开发流程，任何人都可以参与讨论、提交代码和改进项目。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#9881;</div>
+                <h3 data-i18n="feature2_title">优质代码</h3>
+                <p data-i18n="feature2_desc">严格的代码审查流程，确保每个项目都达到高质量标准。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128218;</div>
+                <h3 data-i18n="feature3_title">文档完善</h3>
+                <p data-i18n="feature3_desc">详尽的文档和教程，帮助你快速上手并深入了解每个项目。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#129309;</div>
+                <h3 data-i18n="feature4_title">友好社区</h3>
+                <p data-i18n="feature4_desc">热情友善的社区氛围，新手也能得到耐心的指导和帮助。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128640;</div>
+                <h3 data-i18n="feature5_title">持续创新</h3>
+                <p data-i18n="feature5_desc">不断探索新技术，持续推出创新项目，引领技术潮流。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#127760;</div>
+                <h3 data-i18n="feature6_title">全球化</h3>
+                <p data-i18n="feature6_desc">来自世界各地的开发者，多元文化碰撞出精彩火花。</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="projects" id="projects">
+        <div class="projects-container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="projects_title">精选项目</h2>
+                <p class="section-subtitle" data-i18n="projects_subtitle">探索社区的优秀开源项目</p>
+            </div>
+
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>CEQY Core</h3>
+                    <p data-i18n="project1_desc">核心框架，提供基础架构和通用功能模块。</p>
+                </div>
+                <div class="project-meta">
+                    <div class="project-stars">
+                        <span>&#9733;</span>
+                        <span>1.2K</span>
+                    </div>
+                    <a href="#" class="project-link" data-i18n="view">查看</a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>CEQY UI</h3>
+                    <p data-i18n="project2_desc">现代化 UI 组件库，美观且易用。</p>
+                </div>
+                <div class="project-meta">
+                    <div class="project-stars">
+                        <span>&#9733;</span>
+                        <span>980</span>
+                    </div>
+                    <a href="#" class="project-link" data-i18n="view">查看</a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>CEQY CLI</h3>
+                    <p data-i18n="project3_desc">强大的命令行工具，提升开发效率。</p>
+                </div>
+                <div class="project-meta">
+                    <div class="project-stars">
+                        <span>&#9733;</span>
+                        <span>856</span>
+                    </div>
+                    <a href="#" class="project-link" data-i18n="view">查看</a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>CEQY Docs</h3>
+                    <p data-i18n="project4_desc">全面的官方文档和 API 参考。</p>
+                </div>
+                <div class="project-meta">
+                    <div class="project-stars">
+                        <span>&#9733;</span>
+                        <span>654</span>
+                    </div>
+                    <a href="#" class="project-link" data-i18n="view">查看</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="community" id="community">
+        <div class="community-content">
+            <h2 data-i18n="community_title">加入 CEQY 社区</h2>
+            <p data-i18n="community_desc">与全球开发者一起交流学习，参与开源贡献，成就更好的自己。</p>
+            <a href="#" class="btn btn-primary" data-i18n="cta_join_now">立即加入</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">CEQY</div>
+                <p class="footer-desc" data-i18n="footer_desc">一个充满活力的开放源代码社区，构建优雅、高效、创新的技术解决方案。</p>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-links">
+                <a href="#" data-i18n="link_github">GitHub</a>
+                <a href="#" data-i18n="link_gitee">Gitee</a>
+                <a href="#" data-i18n="link_discord">Discord</a>
+                <a href="#" data-i18n="link_twitter">Twitter</a>
+                <a href="#" data-i18n="link_about">关于</a>
+                <a href="#" data-i18n="link_privacy">隐私政策</a>
+                <a href="#" data-i18n="link_terms">使用条款</a>
+            </div>
+            <p class="copyright">
+                <span id="copyrightYear"></span> CEQY Open Source Community.
+                <span class="heart">&#10084;</span>
+                <span data-i18n="copyright_text">made with love by the community</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const translations = {
+            zh: {
+                nav_features: "特性",
+                nav_projects: "项目",
+                nav_community: "社区",
+                nav_docs: "文档",
+                hero_title: "欢迎来到",
+                hero_subtitle: "开源社区",
+                hero_desc: "一个充满活力的开放源代码社区，我们致力于构建优雅、高效、创新的技术解决方案，让每一位开发者都能在这里找到归属感和成长的机会。",
+                cta_browse: "浏览项目",
+                cta_join: "加入社区",
+                cta_join_now: "立即加入",
+                stat_projects: "开源项目",
+                stat_members: "社区成员",
+                stat_contributors: "活跃贡献者",
+                features_title: "为什么选择 CEQY？",
+                features_subtitle: "我们提供最佳的开源协作体验",
+                feature1_title: "开放协作",
+                feature1_desc: "透明化的开发流程，任何人都可以参与讨论、提交代码和改进项目。",
+                feature2_title: "优质代码",
+                feature2_desc: "严格的代码审查流程，确保每个项目都达到高质量标准。",
+                feature3_title: "文档完善",
+                feature3_desc: "详尽的文档和教程，帮助你快速上手并深入了解每个项目。",
+                feature4_title: "友好社区",
+                feature4_desc: "热情友善的社区氛围，新手也能得到耐心的指导和帮助。",
+                feature5_title: "持续创新",
+                feature5_desc: "不断探索新技术，持续推出创新项目，引领技术潮流。",
+                feature6_title: "全球化",
+                feature6_desc: "来自世界各地的开发者，多元文化碰撞出精彩火花。",
+                projects_title: "精选项目",
+                projects_subtitle: "探索社区的优秀开源项目",
+                project1_desc: "核心框架，提供基础架构和通用功能模块。",
+                project2_desc: "现代化 UI 组件库，美观且易用。",
+                project3_desc: "强大的命令行工具，提升开发效率。",
+                project4_desc: "全面的官方文档和 API 参考。",
+                view: "查看",
+                community_title: "加入 CEQY 社区",
+                community_desc: "与全球开发者一起交流学习，参与开源贡献，成就更好的自己。",
+                footer_desc: "一个充满活力的开放源代码社区，构建优雅、高效、创新的技术解决方案。",
+                link_github: "GitHub",
+                link_gitee: "Gitee",
+                link_discord: "Discord",
+                link_twitter: "Twitter",
+                link_about: "关于",
+                link_privacy: "隐私政策",
+                link_terms: "使用条款",
+                copyright_text: "made with love by the community"
+            },
+            en: {
+                nav_features: "Features",
+                nav_projects: "Projects",
+                nav_community: "Community",
+                nav_docs: "Docs",
+                hero_title: "Welcome to",
+                hero_subtitle: "Open Source Community",
+                hero_desc: "A vibrant open source community dedicated to building elegant, efficient, and innovative technology solutions. Every developer can find belonging and growth opportunities here.",
+                cta_browse: "Browse Projects",
+                cta_join: "Join Community",
+                cta_join_now: "Join Now",
+                stat_projects: "Open Source Projects",
+                stat_members: "Community Members",
+                stat_contributors: "Active Contributors",
+                features_title: "Why CEQY?",
+                features_subtitle: "We provide the best open source collaboration experience",
+                feature1_title: "Open Collaboration",
+                feature1_desc: "Transparent development process where everyone can participate in discussions, submit code, and improve projects.",
+                feature2_title: "Quality Code",
+                feature2_desc: "Strict code review process ensuring every project meets high quality standards.",
+                feature3_title: "Complete Documentation",
+                feature3_desc: "Comprehensive documentation and tutorials to help you get started and deeply understand each project.",
+                feature4_title: "Friendly Community",
+                feature4_desc: "Warm and friendly community atmosphere where newcomers receive patient guidance and help.",
+                feature5_title: "Continuous Innovation",
+                feature5_desc: "Constantly exploring new technologies and launching innovative projects to lead the tech trend.",
+                feature6_title: "Globalization",
+                feature6_desc: "Developers from around the world, diverse cultures spark brilliant ideas.",
+                projects_title: "Featured Projects",
+                projects_subtitle: "Explore excellent open source projects from the community",
+                project1_desc: "Core framework providing infrastructure and common function modules.",
+                project2_desc: "Modern UI component library, beautiful and easy to use.",
+                project3_desc: "Powerful command line tool to improve development efficiency.",
+                project4_desc: "Complete official documentation and API reference.",
+                view: "View",
+                community_title: "Join CEQY Community",
+                community_desc: "Connect and learn with developers worldwide, contribute to open source, and become a better yourself.",
+                footer_desc: "A vibrant open source community building elegant, efficient, and innovative technology solutions.",
+                link_github: "GitHub",
+                link_gitee: "Gitee",
+                link_discord: "Discord",
+                link_twitter: "Twitter",
+                link_about: "About",
+                link_privacy: "Privacy Policy",
+                link_terms: "Terms of Service",
+                copyright_text: "made with love by the community"
+            }
+        };
+
+        const langToggle = document.getElementById('langToggle');
+        const themeToggle = document.getElementById('themeToggle');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.querySelector('.nav-links');
+
+        let currentLang = localStorage.getItem('lang') || 'zh';
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+        langToggle.textContent = currentLang === 'zh' ? 'EN' : '中文';
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+            langToggle.textContent = lang === 'zh' ? 'EN' : '中文';
+            localStorage.setItem('lang', lang);
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        langToggle.addEventListener('click', () => {
+            const newLang = currentLang === 'zh' ? 'en' : 'zh';
+            setLanguage(newLang);
+        });
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+        setLanguage(currentLang);
+    </script>
+</body>
+</html>
